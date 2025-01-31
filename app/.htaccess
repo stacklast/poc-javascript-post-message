@@ -1,0 +1,15 @@
+# Enable CORS for the Client to communicate with the App
+Header set Access-Control-Allow-Origin "http://localhost:8081"  # Allow Client on port 8081 to access
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+
+# Handle preflight OPTIONS requests
+<IfModule mod_headers.c>
+    SetEnvIf Request_Method OPTIONS IsPreflight
+    Header set Access-Control-Allow-Origin "http://localhost:8081" env=IsPreflight
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" env=IsPreflight
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With" env=IsPreflight
+    Header set Access-Control-Max-Age 1728000 env=IsPreflight
+    SetEnvIf IsPreflight 1
+    RequestHeader set Access-Control-Allow-Origin "http://localhost:8081" env=IsPreflight
+</IfModule>

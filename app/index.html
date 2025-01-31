@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App</title>
+</head>
+<body>
+    <h1>App</h1>
+    <p id="mensaje"></p>
+    <button onclick="responder('click')">Responder Click</button>
+    <button onclick="responder('select')">Responder Select</button>
+    <p id="error" style="color: red;"></p>
+
+    <script>
+        const CLIENT_ORIGIN = "http://localhost:8081"; // client.com
+        const APP_ORIGIN = "http://localhost:8080"; // client.com
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("token");
+
+        if (!token) {
+            document.body.innerHTML = '<p style="color: red;">Acceso denegado: Token requerido</p>';
+        } else {
+            window.addEventListener("message", function(event) {
+                if (event.origin !== CLIENT_ORIGIN) return;
+                let mensaje = event.data;
+                if (mensaje.token !== token) return;
+
+                // Aquí se maneja el tipo de mensaje recibido
+                if (mensaje.tipo === 'click') {
+                    document.getElementById("mensaje").innerText = `Mensaje recibido (Click): ${mensaje.data}`;
+                } else if (mensaje.tipo === 'select') {
+                    document.getElementById("mensaje").innerText = `Mensaje recibido (Select): ${mensaje.data}`;
+                }
+            });
+        }
+
+        function responder(tipo) {
+            let respuesta = { tipo: tipo, data: "Respuesta desde App", token: token };
+            try {
+                
+                if (window.opener?.postMessage) { // window open
+                        window.opener.postMessage(respuesta, CLIENT_ORIGIN);
+                        return;
+                }
+                if (window.parent?.postMessage) { //iframe
+                    window.parent.postMessage(respuesta, CLIENT_ORIGIN);
+                    return;
+                }
+                if (parent.postMessage) { //iframe
+                    parent.postMessage(respuesta, CLIENT_ORIGIN);
+                    return;
+                }
+                
+                window.postMessage(respuesta, CLIENT_ORIGIN);
+                
+            } catch (error) {
+                console.error("Error sending response:", error);
+            }
+        }
+    </script>
+</body>
+</html>

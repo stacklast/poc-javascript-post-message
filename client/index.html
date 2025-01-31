@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente</title>
+</head>
+<body>
+    <h1>Cliente</h1>
+    <button onclick="abrirVentana()">Abrir Ventana</button>
+    <button onclick="abrirVentanaTab()">Abrir Ventana Tab</button>
+    <br><br>
+    <button onclick="enviarMensaje('click')">Enviar Click</button>
+    <button onclick="enviarMensaje('select')">Enviar Select</button>
+    <h2>Iframe</h2>
+    <iframe id="miIframe" width="400" height="200"></iframe>
+    <p id="mensajeRecibido"></p>
+
+    <script>
+        let ventana;
+        let iframe = document.getElementById("miIframe");
+        const APP_ORIGIN = "http://localhost:8080";
+        let jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; // Simulación de token
+        const APP_URL_FINAL = `${APP_ORIGIN}?token=${jwtToken}`;
+
+        // Definición de tipos de eventos
+        const eventos = {
+            CLICK: 'click',
+            SELECT: 'select'
+        };
+
+        function abrirVentana() {
+            ventana = window.open(APP_URL_FINAL, "window-2", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+        }
+
+        function abrirVentanaTab() {
+            ventana = window.open(APP_URL_FINAL, "_blank");
+        }
+
+        function enviarMensaje(tipo) {
+            // Verifica si el tipo de mensaje es válido antes de enviarlo
+            if (Object.values(eventos).includes(tipo)) {
+                let mensaje = { tipo: tipo, data: "Evento desde Cliente", token: jwtToken };
+                if (ventana) {
+                    ventana.postMessage(mensaje, APP_ORIGIN);
+                }
+                iframe.contentWindow?.postMessage(mensaje, APP_ORIGIN);
+            } else {
+                console.error("Tipo de evento no válido");
+            }
+        }
+
+        // Carga el iframe con el token
+        iframe.src = APP_URL_FINAL;
+
+        window.addEventListener("message", function(event) {
+            if (event.origin !== APP_ORIGIN) return;
+            let mensaje = event.data;
+
+            // Aquí se maneja el tipo de mensaje recibido
+            if (mensaje.tipo === 'click') {
+                document.getElementById("mensajeRecibido").innerText = `Mensaje recibido (Click): ${mensaje.data}`;
+            } else if (mensaje.tipo === 'select') {
+                document.getElementById("mensajeRecibido").innerText = `Mensaje recibido (Select): ${mensaje.data}`;
+            }
+        });
+    </script>
+</body>
+</html>

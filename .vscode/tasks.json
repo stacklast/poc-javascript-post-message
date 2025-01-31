@@ -1,0 +1,46 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build and Run App Docker",
+            "type": "shell",
+            "command": "docker build -t app ./app && docker run -d -p 8080:80 --name app-container app",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build and Run Client Docker",
+            "type": "shell",
+            "command": "docker build -t client ./client && docker run -d -p 8081:80 --name client-container client",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build and Run Both Docker Containers",
+            "type": "shell",
+            "command": "docker build -t app ./app && docker run -d -p 8080:80 --name app-container app && docker build -t client ./client && docker run -d -p 8081:80 --name client-container client",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Stop Docker Containers",
+            "type": "shell",
+            "command": "docker stop $(docker ps -aq) && docker rm $(docker ps -aq)",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Stop and Rebuild Containers",
+            "type": "shell",
+            "command": "docker stop $(docker ps -aq) && docker rm $(docker ps -aq) && docker build -t app ./app && docker run -d -p 8080:80 --name app-container app && docker build -t client ./client && docker run -d -p 8081:80 --name client-container client",
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}
